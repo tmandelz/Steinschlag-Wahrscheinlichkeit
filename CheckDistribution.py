@@ -10,6 +10,13 @@ Created on Mon Oct 25 19:18:09 2021
 import numpy as np
 from scipy.stats import expon 
 import pandas as pd
+from statistics import mean, median
+from numpy.random import normal
+from matplotlib import pyplot
+from numpy.random.mtrand import exponential
+
+
+
 
 
 
@@ -39,4 +46,23 @@ mergedDataFile["cdf"] = expon.cdf(mergedDataFile["energy"], loc = 0, scale = 1) 
 
 mergedDataFile["energy"].plot.hist(bins = 40)
 mergedDataFile.plot(x = "energy", y = "pdf")
+
+
+
+
+# define the distribution
+mu = mean(mergedDataFile["mass"])
+# generate monte carlo samples of differing size
+size = 1000000
+#for i in range(len(sizes)):
+	# generate sample
+
+sample = exponential(mu, size)
+
+print(max(sample))
+print(min(sample))
+print(mean(sample))
+print(median(sample))
+
+
 
