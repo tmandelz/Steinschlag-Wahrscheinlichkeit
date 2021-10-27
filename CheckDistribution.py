@@ -7,6 +7,7 @@ Created on Mon Oct 25 19:18:09 2021
 
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.expon.html
 
+import matplotlib
 import numpy as np
 from scipy.stats import expon 
 import pandas as pd
@@ -17,7 +18,23 @@ from numpy.random.mtrand import exponential
 from scipy import stats
 
 
+def FindmostfittingDistribution(MatrixColumn):
 
+	## List of available Distributions for fitting in scipy
+	list_of_dists = ['alpha','anglit','arcsine','beta','betaprime','bradford','burr','burr12','cauchy','chi','chi2','cosine','dgamma','dweibull','expon','exponnorm','exponweib','exponpow','f','fatiguelife','fisk','foldcauchy','foldnorm','genlogistic','genpareto','gennorm','genexpon','genextreme','gausshyper','gamma','gengamma','genhalflogistic','gilbrat','gompertz','gumbel_r','gumbel_l','halfcauchy','halflogistic','halfnorm','halfgennorm','hypsecant','invgamma','invgauss','invweibull','johnsonsb','johnsonsu','kstwobign','laplace','levy','levy_l','logistic','loggamma','loglaplace','lognorm','lomax','maxwell','mielke','nakagami','ncx2','ncf','nct','norm','pareto','pearson3','powerlaw','powerlognorm','powernorm','rdist','reciprocal','rayleigh','rice','recipinvgauss','semicircular','t','triang','truncexpon','truncnorm','tukeylambda','uniform','vonmises','vonmises_line','wald','weibull_min','weibull_max']
+
+
+	results = []
+	for i in list_of_dists:
+		dist = getattr(stats, i)
+		param = dist.fit(MatrixColumn)
+		a = stats.kstest(MatrixColumn, i, args=param)
+		results.append((i,a[0],a[1]))
+    
+    
+	results.sort(key=lambda x:float(x[2]), reverse=True)
+	for j in results:
+    		print("{}: statistic={}, pvalue={}".format(j[0], j[1], j[2]))
 
 
 
@@ -48,25 +65,10 @@ mergedDataFile["cdf"] = expon.cdf(mergedDataFile["energy"], loc = 0, scale = 1) 
 mergedDataFile["energy"].plot.hist(bins = 40)
 mergedDataFile.plot(x = "energy", y = "pdf")
 
-
-#list_of_dists = ['alpha','anglit','arcsine','beta','betaprime','bradford','burr','burr12','cauchy','chi','chi2','cosine','dgamma','dweibull','erlang','expon','exponnorm','exponweib','exponpow','f','fatiguelife','fisk','foldcauchy','foldnorm','frechet_r','frechet_l','genlogistic','genpareto','gennorm','genexpon','genextreme','gausshyper','gamma','gengamma','genhalflogistic','gilbrat','gompertz','gumbel_r','gumbel_l','halfcauchy','halflogistic','halfnorm','halfgennorm','hypsecant','invgamma','invgauss','invweibull','johnsonsb','johnsonsu','kstwobign','laplace','levy','levy_l','logistic','loggamma','loglaplace','lognorm','lomax','maxwell','mielke','nakagami','ncx2','ncf','nct','norm','pareto','pearson3','powerlaw','powerlognorm','powernorm','rdist','reciprocal','rayleigh','rice','recipinvgauss','semicircular','t','triang','truncexpon','truncnorm','tukeylambda','uniform','vonmises','vonmises_line','wald','weibull_min','weibull_max']
-list_of_dists = ['alpha','anglit','arcsine','beta','betaprime','bradford','burr','burr12','cauchy','chi','chi2','cosine','dgamma','dweibull','expon','exponnorm','exponweib','exponpow','f','fatiguelife','fisk','foldcauchy','foldnorm','genlogistic','genpareto','gennorm','genexpon','genextreme','gausshyper','gamma','gengamma','genhalflogistic','gilbrat','gompertz','gumbel_r','gumbel_l','halfcauchy','halflogistic','halfnorm','halfgennorm','hypsecant','invgamma','invgauss','invweibull','johnsonsb','johnsonsu','kstwobign','laplace','levy','levy_l','logistic','loggamma','loglaplace','lognorm','lomax','maxwell','mielke','nakagami','ncx2','ncf','nct','norm','pareto','pearson3','powerlaw','powerlognorm','powernorm','rdist','reciprocal','rayleigh','rice','recipinvgauss','semicircular','t','triang','truncexpon','truncnorm','tukeylambda','uniform','vonmises','vonmises_line','wald','weibull_min','weibull_max']
+#FindmostfittingDistribution(mergedDataFile["mass"])
 
 
-results = []
-for i in list_of_dists:
-    dist = getattr(stats, i)
-    param = dist.fit(mergedDataFile["mass"])
-    a = stats.kstest(mergedDataFile["mass"], i, args=param)
-    results.append((i,a[0],a[1]))
-    
-    
-results.sort(key=lambda x:float(x[2]), reverse=True)
-for j in results:
-    print("{}: statistic={}, pvalue={}".format(j[0], j[1], j[2]))
-
-
- #Monte Carlo Sim für Exponential Vertelung
+#Monte Carlo Sim für Exponential Verteilung der Masse
 
 # define the distribution
 explambda = mean(mergedDataFile["mass"])
@@ -90,19 +92,5 @@ print(median(sample))
 
 
 #TODO: Monte Carlo Sim für Masse, Geschwindigkeit und Zeit modellieren pro Ablösungszone
-
-
-
-
-
-
-#Monte Carlo Sim für Exponential Weibull Vertelung
-
-#alpha = 0
-#beta = 0
-#gamma = 0
-#a, c = 2.89, 1.95
-#r = stats.exponweib(a,c)
-#print(r)
 
 
