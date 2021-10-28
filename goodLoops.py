@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct 25 19:18:09 2021
+Created on Thu Oct 28 09:26:32 2021
 
 @author: schue
 """
-
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.expon.html
 
 import matplotlib
 import numpy as np
@@ -16,7 +14,6 @@ from numpy.random import normal
 from matplotlib import pyplot
 from numpy.random.mtrand import exponential
 from scipy import stats
-
 
 def FindmostfittingDistribution(MatrixColumn):
 
@@ -47,48 +44,17 @@ dataFile2 = pd.read_csv("out_2.csv")
 dataFile1['zone']='1'
 dataFile2['zone']='2'
 
-#Append File 2 to File 1
-mergedDataFile = dataFile1.append(dataFile2)
+FileZone = [dataFile1, dataFile2]
+listfeatures
 
-#Add Energy in KJ column formula(KE=1/2mv^2)/1000 in m = kg and v = m/s
-mergedDataFile['energy']=((mergedDataFile['mass']/2)*(mergedDataFile['velocity']**2) / 1000)
-
-#Sortieren um aufsteigende Übersicht der Energie zu haben
-mergedDataFile = mergedDataFile.sort_values("energy")
-
-
-mergedDataFile["pdf"] = expon.pdf(mergedDataFile["energy"], loc = 0, scale = 1)
-mergedDataFile["cdf"] = expon.cdf(mergedDataFile["energy"], loc = 0, scale = 1) * 100
-
-# print(expon.expect(expon.pdf, args=mergedDataFile["energy"]))
-
-# mergedDataFile["velocity"].plot.hist(bins = 40)
-# mergedDataFile.plot(x = "velocity", y = "pdf")
-dataFile2["velocity"].plot.hist(bins = 40)
-
-
-
-# FindmostfittingDistribution(dataFile1["mass"])
-# FindmostfittingDistribution(dataFile1["velocity"])
-# FindmostfittingDistribution(dataFile2["velocity"])
-FindmostfittingDistribution(dataFile1["velocity"])
-
-
-#Monte Carlo Sim für Exponential Verteilung der Masse
-
-# define the distribution
-# explambda = mean(mergedDataFile["mass"])
-
-# generate monte carlo samples of differing size
-# size = 1_000_000
-# generate sample
-
-# sample = exponential(explambda, size)
-
-# print(max(sample))
-# print(min(sample))
-# print(mean(sample))
-# print(median(sample))
+#Mainloop for zone calculations
+for i in FileZone:
+    # calc fit dist features (for )
+    for x in listfeatures:
+        # calc fit dist features case when dist predefined
+        # calc monte carlo
+        # return calc monte carlo
+    
 
 
 
@@ -97,6 +63,5 @@ FindmostfittingDistribution(dataFile1["velocity"])
 
 
 
-#TODO: Monte Carlo Sim für Masse, Geschwindigkeit und Zeit modellieren pro Ablösungszone
 
-
+    

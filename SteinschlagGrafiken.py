@@ -62,6 +62,12 @@ dfTimeSerie["BreachEnergy"] = np.where(dfTimeSerie["energy"] >= 1000, 1, 0)
 dfTimeSerie["BreachFullNet"] = np.where((dfTimeSerie["energy"] >= 500) & (dfTimeSerie["rollingmass24h"] >= 2000), 1, 0)
 # Theoretisch müsste man dfTimeSerie["rollingmass24h"] von der Reihe darüber nehmen, nun wird auch der neue Stein dazugezählt.
 
+# Calculate Time after Stone
+TimeafterStone = mergedDataFile["DateTime"].diff()
+mergedDataFile["TimebeforeStone"] = TimeafterStone.astype('timedelta64[h]')
+mergedDataFile["TimebeforeStone"].plot.hist(bins = 40)
+
+
 Uebersicht = mergedDataFile.describe()
 
 
