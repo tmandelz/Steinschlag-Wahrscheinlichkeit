@@ -52,6 +52,11 @@ dfTimeSerie['DateTime'] = dfTimeSerie.index
 dfTimeSerie["date"] = dfTimeSerie["DateTime"].dt.date
 dfTimeSerie["timestamp"] = dfTimeSerie["DateTime"].dt.time
 
+# Calculate Time before next Stone
+TimebeforeStone = mergedDataFile["DateTime"].diff()
+mergedDataFile["TimebeforeStone"] = TimebeforeStone.astype('timedelta64[h]')
+mergedDataFile["TimebeforeStone"].plot.hist(bins = 40)
+
 # Rolling 24h
 dfTimeSerie["rollingEnergy24h"] = dfTimeSerie["energy"].rolling(24, min_periods=1).sum()
 dfTimeSerie["rollingmass24h"] = dfTimeSerie["mass"].rolling(24, min_periods=1).sum()
@@ -62,11 +67,6 @@ dfTimeSerie["BreachEnergy"] = np.where(dfTimeSerie["energy"] >= 1000, 1, 0)
 dfTimeSerie["BreachFullNet"] = np.where((dfTimeSerie["energy"] >= 500) & (dfTimeSerie["rollingmass24h"] >= 2000), 1, 0)
 # Theoretisch müsste man dfTimeSerie["rollingmass24h"] von der Reihe darüber nehmen, nun wird auch der neue Stein dazugezählt.
 
-# Calculate Time after Stone
-TimeafterStone = mergedDataFile["DateTime"].diff()
-mergedDataFile["TimebeforeStone"] = TimeafterStone.astype('timedelta64[h]')
-mergedDataFile["TimebeforeStone"].plot.hist(bins = 40)
-
 
 Uebersicht = mergedDataFile.describe()
 
@@ -76,6 +76,14 @@ UebersichtEnergie = pd.pivot_table(dfTimeSerie, values='Trigger', columns=['Uebe
 UebersichtZone = pd.pivot_table(dfTimeSerie, values='Trigger', columns=['zone'], aggfunc=np.sum)
 UebersichtZoneEnergie = pd.pivot_table(dfTimeSerie, values='Trigger', columns=['zone', 'UebersichtEnergie'], aggfunc=np.sum)
 ## Achtung: ein Stein hat Energie 0 ##
+
+def PassDataframe():
+    dfforsim = mergedDataFile
+    return dfforsim
+
+PassDataframe()
+
+### Plots start here
 
 # dfTimeSerie.boxplot(column = "mass", by = "zone")
 # dfTimeSerie.boxplot(column = "velocity", by = "zone")

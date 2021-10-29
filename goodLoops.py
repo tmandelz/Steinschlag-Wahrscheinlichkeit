@@ -14,6 +14,7 @@ from numpy.random import normal
 from matplotlib import pyplot
 from numpy.random.mtrand import exponential
 from scipy import stats
+import SteinschlagGrafiken
 
 
 def FindmostfittingDistribution(MatrixColumn):
@@ -34,6 +35,8 @@ def FindmostfittingDistribution(MatrixColumn):
         print("{}: statistic={}, pvalue={}".format(j[0], j[1], j[2]))
 
 
+
+
 # Read first CSV File
 dataFile1 = pd.read_csv("out_1.csv")
 # Read second CSV File
@@ -42,6 +45,11 @@ dataFile2 = pd.read_csv("out_2.csv")
 # Add Zone columns
 dataFile1['zone'] = '1'
 dataFile2['zone'] = '2'
+
+#Get prepared Dataframe from Steinschlaggrafik
+#Der Vorteil des DFs gegenüber dataFilex ist, dass hier zusätzliche Infos wie Energie, TimebeforeStone, formatierte Zeitangaben etc vorhanden sind.
+#Für die Verwendung müsste Mainloop for zone Calculations ein bisschen angepasst werden.
+mergedDataFile = SteinschlagGrafiken.PassDataframe()
 
 FileZone = [dataFile1, dataFile2]
 # listfeatures_distributions = [["mass","exponential"],["velocity","normal"],["time","exponential"]]
