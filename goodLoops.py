@@ -38,21 +38,25 @@ def FindmostfittingDistribution(MatrixColumn):
 
 
 # Read first CSV File
-dataFile1 = pd.read_csv("out_1.csv")
+# dataFile1 = pd.read_csv("out_1.csv")
 # Read second CSV File
-dataFile2 = pd.read_csv("out_2.csv")
+# dataFile2 = pd.read_csv("out_2.csv")
 
 # Add Zone columns
-dataFile1['zone'] = '1'
-dataFile2['zone'] = '2'
+# dataFile1['zone'] = '1'
+# dataFile2['zone'] = '2'
 
 #Get prepared Dataframe from Steinschlaggrafik
 #Der Vorteil des DFs gegenüber dataFilex ist, dass hier zusätzliche Infos wie Energie, TimebeforeStone, formatierte Zeitangaben etc vorhanden sind.
 #Für die Verwendung müsste Mainloop for zone Calculations ein bisschen angepasst werden.
 mergedDataFile = SteinschlagGrafiken.PassDataframe()
+dataFile1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
+dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
+
+
 
 FileZone = [dataFile1, dataFile2]
-# listfeatures_distributions = [["mass","exponential"],["velocity","normal"],["time","exponential"]]
+# listfeatures_distributions = [["mass","exponential"],["velocity","normal"],["TimebeforeStone","exponential"]]
 listfeatures_distributions = [["mass", "exponential"]]
 sizeMonteCarloSim = 1_000_000
 
