@@ -57,6 +57,9 @@ TimebeforeStone = mergedDataFile["DateTime"].diff()
 mergedDataFile["TimebeforeStone"] = TimebeforeStone.astype('timedelta64[h]')
 mergedDataFile["TimebeforeStone"].plot.hist(bins = 40)
 
+
+
+
 # Rolling 24h
 dfTimeSerie["rollingEnergy24h"] = dfTimeSerie["energy"].rolling(24, min_periods=1).sum()
 dfTimeSerie["rollingmass24h"] = dfTimeSerie["mass"].rolling(24, min_periods=1).sum()
