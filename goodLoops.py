@@ -14,7 +14,9 @@ from numpy.random import normal
 from matplotlib import pyplot
 from numpy.random.mtrand import exponential
 from scipy import stats
+from scipy.stats.stats import describe
 import SteinschlagGrafiken
+import scipy as sc
 
 
 def FindmostfittingDistribution(MatrixColumn):
@@ -65,7 +67,6 @@ zoneindex = 1
 # Mainloop for zone calculations
 for FileZone in FileZones:
     # calc fit dist features (for )
-    print("FileZone:",FileZone['zone'])
     for featureDistribution in listfeatures_distributions:
         # calc fit dist features case when dist predefined
         if (featureDistribution[1] == "exponential"):
@@ -75,10 +76,18 @@ for FileZone in FileZones:
             listfeatures_samples[featureDistribution[0]+ '_zone_{}'.format(zoneindex)] = sample
             featureDistribution= np.append(featureDistribution,sample)
         elif(featureDistribution[1] == "normal"):
-            sample = normal(size=sizeMonteCarloSim)
+            meanTruncated = mean(FileZone[featureDistribution[0]])
+            stdTruncated = np.std(FileZone[featureDistribution[0]])
+            # generate sample
+            sample = normal(meanTruncated,stdTruncated, size=sizeMonteCarloSim)
             listfeatures_samples[featureDistribution[0]+ '_zone_{}'.format(zoneindex)] = sample
 
     zoneindex=zoneindex+1
 print(listfeatures_samples)
+print(listfeatures_samples.min())
+print(listfeatures_samples.max())
+
+
+print(listfeatures_samples['velocity_zone_1'].lt(0).sum())
     # calc monte carlo
     # return calc monte carlo

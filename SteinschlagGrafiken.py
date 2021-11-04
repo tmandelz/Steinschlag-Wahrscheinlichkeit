@@ -53,9 +53,22 @@ dfTimeSerie["date"] = dfTimeSerie["DateTime"].dt.date
 dfTimeSerie["timestamp"] = dfTimeSerie["DateTime"].dt.time
 
 # Calculate Time before next Stone
-TimebeforeStone = mergedDataFile["DateTime"].diff()
-mergedDataFile["TimebeforeStone"] = TimebeforeStone.astype('timedelta64[h]')
-mergedDataFile["TimebeforeStone"].plot.hist(bins = 40)
+
+mergedDataFileZone1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
+TimebeforeStone1 =mergedDataFileZone1["DateTime"].diff()
+mergedDataFileZone1["TimebeforeStone"] = TimebeforeStone1.astype('timedelta64[h]').fillna(0)
+
+
+mergedDataFileZone2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
+TimebeforeStone2 =mergedDataFileZone2["DateTime"].diff()
+mergedDataFileZone2["TimebeforeStone"] = TimebeforeStone2.astype('timedelta64[h]').fillna(0)
+
+
+mergedDataFile = mergedDataFileZone1.append(mergedDataFileZone2)
+
+# TimebeforeStone = mergedDataFile["DateTime"].diff()
+# mergedDataFile["TimebeforeStone"] = TimebeforeStone.astype('timedelta64[h]')
+# mergedDataFile["TimebeforeStone"].plot.hist(bins = 40)
 
 
 
