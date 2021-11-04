@@ -22,7 +22,8 @@ import scipy as sc
 def FindmostfittingDistribution(MatrixColumn):
 
     # List of available Distributions for fitting in scipy
-    list_of_dists = ['beta','cauchy','chi','chi2','expon','logistic','norm', 'pareto', 't', 'uniform']
+    list_of_dists = ['beta', 'cauchy', 'chi', 'chi2',
+                     'expon', 'logistic', 'norm', 'pareto', 't', 'uniform']
 
     results = []
     for i in list_of_dists:
@@ -37,7 +38,6 @@ def FindmostfittingDistribution(MatrixColumn):
 
 
 
-
 # Read first CSV File
 # dataFile1 = pd.read_csv("out_1.csv")
 # Read second CSV File
@@ -47,17 +47,17 @@ def FindmostfittingDistribution(MatrixColumn):
 # dataFile1['zone'] = '1'
 # dataFile2['zone'] = '2'
 
-#Get prepared Dataframe from Steinschlaggrafik
-#Der Vorteil des DFs gegenüber dataFilex ist, dass hier zusätzliche Infos wie Energie, TimebeforeStone, formatierte Zeitangaben etc vorhanden sind.
-#Für die Verwendung müsste Mainloop for zone Calculations ein bisschen angepasst werden.
+# Get prepared Dataframe from Steinschlaggrafik
+# Der Vorteil des DFs gegenüber dataFilex ist, dass hier zusätzliche Infos wie Energie, TimebeforeStone, formatierte Zeitangaben etc vorhanden sind.
+# Für die Verwendung müsste Mainloop for zone Calculations ein bisschen angepasst werden.
 mergedDataFile = SteinschlagGrafiken.PassDataframe()
 dataFile1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
 dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
 
 
-
 FileZones = [dataFile1, dataFile2]
-listfeatures_distributions = [["mass","exponential"],["velocity","normal"],["TimebeforeStone","exponential"]]
+listfeatures_distributions = [["mass", "exponential"], [
+    "velocity", "normal"], ["TimebeforeStone", "exponential"]]
 #listfeatures_distributions = [["mass", "exponential"]]
 sizeMonteCarloSim = 1_000_000
 
@@ -73,21 +73,36 @@ for FileZone in FileZones:
             explambda = mean(FileZone[featureDistribution[0]])
             # generate sample
             sample = exponential(explambda, sizeMonteCarloSim)
-            listfeatures_samples[featureDistribution[0]+ '_zone_{}'.format(zoneindex)] = sample
-            featureDistribution= np.append(featureDistribution,sample)
+            listfeatures_samples[featureDistribution[0] +
+                                 '_zone_{}'.format(zoneindex)] = sample
+            featureDistribution = np.append(featureDistribution, sample)
         elif(featureDistribution[1] == "normal"):
             meanTruncated = mean(FileZone[featureDistribution[0]])
             stdTruncated = np.std(FileZone[featureDistribution[0]])
             # generate sample
-            sample = normal(meanTruncated,stdTruncated, size=sizeMonteCarloSim)
-            listfeatures_samples[featureDistribution[0]+ '_zone_{}'.format(zoneindex)] = sample
+            sample = normal(meanTruncated, stdTruncated,
+                            size=sizeMonteCarloSim)
+            listfeatures_samples[featureDistribution[0] +
+                                 '_zone_{}'.format(zoneindex)] = sample
+    print("Zone fertig")
+    zoneindex = zoneindex+1
 
-    zoneindex=zoneindex+1
+
 print(listfeatures_samples)
 print(listfeatures_samples.min())
 print(listfeatures_samples.max())
 
 
-print(listfeatures_samples['velocity_zone_1'].lt(0).sum())
-    # calc monte carlo
-    # return calc monte carlo
+listfeatures_samples['energy_zone_1'] = (
+    (listfeatures_samples['mass_zone_1']/2)*(listfeatures_samples['velocity_zone_1']**2) / 1000)
+listfeatures_samples['energy_zone_2'] = (
+    (listfeatures_samples['mass_zone_2']/2)*(listfeatures_samples['velocity_zone_2']**2) / 1000)
+listfeatures_samples['istböse_zone_1'] = np.where(
+    (listfeatures_samples["energy_zone_1"] >= 1000), 1, 0)
+listfeatures_samples['istböse_zone_2'] = np.where(
+    (listfeatures_samples["energy_zone_2"] >= 1000), 1, 0)
+listfeatures_samples['ist ganz böse'] = listfeatures_samples['istböse_zone_1'] + \
+    listfeatures_samples['istböse_zone_2']
+
+print(listfeatures_samples)
+print(listfeatures_samples['ist ganz böse'].gt(0).sum() / sizeMonteCarloSim)
