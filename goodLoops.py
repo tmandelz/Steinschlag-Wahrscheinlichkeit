@@ -54,30 +54,31 @@ dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
 
 
 
-FileZone = [dataFile1, dataFile2]
-# listfeatures_distributions = [["mass","exponential"],["velocity","normal"],["TimebeforeStone","exponential"]]
-listfeatures_distributions = [["mass", "exponential"]]
+FileZones = [dataFile1, dataFile2]
+listfeatures_distributions = [["mass","exponential"],["velocity","normal"],["TimebeforeStone","exponential"]]
+#listfeatures_distributions = [["mass", "exponential"]]
 sizeMonteCarloSim = 1_000_000
 
+listfeatures_samples = pd.DataFrame()
+zoneindex = 1
 
 # Mainloop for zone calculations
-for FileZone in FileZone:
+for FileZone in FileZones:
     # calc fit dist features (for )
-    print(FileZone['zone'])
+    print("FileZone:",FileZone['zone'])
     for featureDistribution in listfeatures_distributions:
         # calc fit dist features case when dist predefined
-        print(featureDistribution[0])
-        print(featureDistribution[1])
         if (featureDistribution[1] == "exponential"):
             explambda = mean(FileZone[featureDistribution[0]])
             # generate sample
             sample = exponential(explambda, sizeMonteCarloSim)
-            print(sample)
+            listfeatures_samples[featureDistribution[0]+ '_zone_{}'.format(zoneindex)] = sample
             featureDistribution= np.append(featureDistribution,sample)
-            print(featureDistribution)
         elif(featureDistribution[1] == "normal"):
             sample = normal(size=sizeMonteCarloSim)
-            print(sample)
+            listfeatures_samples[featureDistribution[0]+ '_zone_{}'.format(zoneindex)] = sample
 
+    zoneindex=zoneindex+1
+print(listfeatures_samples)
     # calc monte carlo
     # return calc monte carlo
