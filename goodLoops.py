@@ -63,7 +63,7 @@ listfeatures_distributions = [["mass", "exponential"], [
 #listfeatures_distributions = [["mass", "exponential"]]
 
 # Anzahl Durchgänge in der Monte Carlo Simulation
-sizeMonteCarloSim = 1_000_000
+sizeMonteCarloSim = 10_000
 
 listfeatures_samples = pd.DataFrame()
 zoneindex = 1
@@ -112,6 +112,18 @@ listfeatures_samples['ist ganz böse'] = listfeatures_samples['istböse_zone_1']
 print(listfeatures_samples)
 # Berechnung der Wahrscheinlichkeit, dass das Netz durchbrochen wird
 print(listfeatures_samples['ist ganz böse'].gt(0).sum() / sizeMonteCarloSim)
+
+# Berechnung Masse im Netz
+# # Vorgehensweise funktioniert nicht mehr ab 100/- Steinen, da pd Zeitreihe nicht lang genug
+# listfeatures_samples["HoursbeforeStone_zone_2"] = pd.to_timedelta(listfeatures_samples["TimebeforeStone_zone_2"], unit ="h")
+# listfeatures_samples["CumsumHoursbeforeStone_zone_2"] = listfeatures_samples["HoursbeforeStone_zone_2"].cumsum()
+# listfeatures_samples = listfeatures_samples.set_index("CumsumHoursbeforeStone_zone_2")
+# listfeatures_samples["MassinNet"] = listfeatures_samples["mass_zone_2"].rolling("24h", min_periods=1).sum()
+
+# # Berechnung ob Netz in Kombination im Masse darin reisst
+# listfeatures_samples["BreachFullNet"] = np.where((listfeatures_samples["energy_zone_2"] >= 500) & (listfeatures_samples["MassinNet"] >= 2000), 1, 0)
+# print(listfeatures_samples['BreachFullNet'].gt(0).sum() / sizeMonteCarloSim)
+
 
 # To Do: Berechnung der Steine die wegen dem vollen Netz dieses durchschlagen haben (Daten vorhanden, Code noch offen),
 #       Verknüpfung der Wahrscheinlichkeit, dass eine Auto getroffen wird und der Wahrscheinlichkeit, dass es dann zu einem Todesfall kommt.
