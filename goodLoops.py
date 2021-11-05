@@ -18,7 +18,9 @@ from scipy.stats.stats import describe
 import SteinschlagGrafiken
 import scipy as sc
 
+# Damit der Code läuft, müssen im gleichen Folder SteinschlagGrafiken.py und die beiden CSVs "out_1" und "out_2" vorhanden sein.
 
+# Überprüfung welche Verteilungen zu den Faktoren passen (wurde nur einmal verwendet)
 def FindmostfittingDistribution(MatrixColumn):
 
     # List of available Distributions for fitting in scipy
@@ -37,7 +39,7 @@ def FindmostfittingDistribution(MatrixColumn):
         print("{}: statistic={}, pvalue={}".format(j[0], j[1], j[2]))
 
 
-
+# Import der Daten läuft derzeit via mergedDataFile = SteinschlagGrafiken.PassDataframe() aus .py Code SteinschlagGrafiken
 # Read first CSV File
 # dataFile1 = pd.read_csv("out_1.csv")
 # Read second CSV File
@@ -54,11 +56,13 @@ mergedDataFile = SteinschlagGrafiken.PassDataframe()
 dataFile1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
 dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
 
-
+# Erstellung von Listen für die Monte Carlo Simulation
 FileZones = [dataFile1, dataFile2]
 listfeatures_distributions = [["mass", "exponential"], [
     "velocity", "normal"], ["TimebeforeStone", "exponential"]]
 #listfeatures_distributions = [["mass", "exponential"]]
+
+# Anzahl Durchgänge in der Monte Carlo Simulation
 sizeMonteCarloSim = 1_000_000
 
 listfeatures_samples = pd.DataFrame()
@@ -92,11 +96,12 @@ print(listfeatures_samples)
 print(listfeatures_samples.min())
 print(listfeatures_samples.max())
 
-
+# Berechnung der Energie der simulierten Steinschläge pro Zone
 listfeatures_samples['energy_zone_1'] = (
     (listfeatures_samples['mass_zone_1']/2)*(listfeatures_samples['velocity_zone_1']**2) / 1000)
 listfeatures_samples['energy_zone_2'] = (
     (listfeatures_samples['mass_zone_2']/2)*(listfeatures_samples['velocity_zone_2']**2) / 1000)
+# Markierung der Steine, die mit der Energie das Netz durchschlagen haben
 listfeatures_samples['istböse_zone_1'] = np.where(
     (listfeatures_samples["energy_zone_1"] >= 1000), 1, 0)
 listfeatures_samples['istböse_zone_2'] = np.where(
@@ -105,4 +110,8 @@ listfeatures_samples['ist ganz böse'] = listfeatures_samples['istböse_zone_1']
     listfeatures_samples['istböse_zone_2']
 
 print(listfeatures_samples)
+# Berechnung der Wahrscheinlichkeit, dass das Netz durchbrochen wird
 print(listfeatures_samples['ist ganz böse'].gt(0).sum() / sizeMonteCarloSim)
+
+# To Do: Berechnung der Steine die wegen dem vollen Netz dieses durchschlagen haben (Daten vorhanden, Code noch offen),
+#       Verknüpfung der Wahrscheinlichkeit, dass eine Auto getroffen wird und der Wahrscheinlichkeit, dass es dann zu einem Todesfall kommt.
