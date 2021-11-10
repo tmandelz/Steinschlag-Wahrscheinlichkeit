@@ -63,7 +63,7 @@ listfeatures_distributions = [["mass", "exponential"], [
 #listfeatures_distributions = [["mass", "exponential"]]
 
 # Anzahl Durchgänge in der Monte Carlo Simulation
-sizeMonteCarloSim = 10_000
+sizeMonteCarloSim = 1_000
 
 listfeatures_samples = pd.DataFrame()
 zoneindex = 1
@@ -115,10 +115,12 @@ print(listfeatures_samples['ist ganz böse'].gt(0).sum() / sizeMonteCarloSim)
 
 # Berechnung Masse im Netz
 # # Vorgehensweise funktioniert nicht mehr ab 100/- Steinen, da pd Zeitreihe nicht lang genug
-# listfeatures_samples["HoursbeforeStone_zone_2"] = pd.to_timedelta(listfeatures_samples["TimebeforeStone_zone_2"], unit ="h")
-# listfeatures_samples["CumsumHoursbeforeStone_zone_2"] = listfeatures_samples["HoursbeforeStone_zone_2"].cumsum()
-# listfeatures_samples = listfeatures_samples.set_index("CumsumHoursbeforeStone_zone_2")
-# listfeatures_samples["MassinNet"] = listfeatures_samples["mass_zone_2"].rolling("24h", min_periods=1).sum()
+listfeatures_samples["HoursbeforeStone_zone_1"] = pd.to_timedelta(listfeatures_samples["TimebeforeStone_zone_1"], unit ="s")
+listfeatures_samples["CumsumHoursbeforeStone_zone_1"] = listfeatures_samples["HoursbeforeStone_zone_1"].cumsum()
+listfeatures_samples["HoursbeforeStone_zone_2"] = pd.to_timedelta(listfeatures_samples["TimebeforeStone_zone_2"], unit ="s")
+listfeatures_samples["CumsumHoursbeforeStone_zone_2"] = listfeatures_samples["HoursbeforeStone_zone_2"].cumsum()
+listfeatures_samples = listfeatures_samples.set_index("CumsumHoursbeforeStone_zone_2")
+listfeatures_samples["MassinNet"] = listfeatures_samples["mass_zone_2"].rolling("24h", min_periods=1).sum()
 
 # # Berechnung ob Netz in Kombination im Masse darin reisst
 # listfeatures_samples["BreachFullNet"] = np.where((listfeatures_samples["energy_zone_2"] >= 500) & (listfeatures_samples["MassinNet"] >= 2000), 1, 0)
