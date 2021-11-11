@@ -56,41 +56,71 @@ mergedDataFile = SteinschlagGrafiken.PassDataframe()
 dataFile1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
 dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
 
+FindmostfittingDistribution(dataFile2["TimebeforeStone"])
+
 # Erstellung von Listen für die Monte Carlo Simulation
 FileZones = [dataFile1, dataFile2]
-listfeatures_distributions = [["mass", "exponential"], [
+# listfeatures_distributions = [["mass", "exponential"], [
+#     "velocity", "normal"], ["TimebeforeStone", "exponential"]]
+listfeatures_distributions_zone1 = [["mass", "exponential"], [
     "velocity", "normal"], ["TimebeforeStone", "exponential"]]
-#listfeatures_distributions = [["mass", "exponential"]]
+# listfeatures_distributions_zone2 = [["mass", "exponential"], [
+#     "velocity", "normal"], ["TimebeforeStone", "exponential"]]
 
 # Anzahl Durchgänge in der Monte Carlo Simulation
-sizeMonteCarloSim = 1_000
+sizeMonteCarloSim = 1_0
 
 listfeatures_samples = pd.DataFrame()
 zoneindex = 1
 
 # Mainloop for zone calculations
-for FileZone in FileZones:
-    # calc fit dist features (for )
-    for featureDistribution in listfeatures_distributions:
+# for FileZone in FileZones:
+#     # calc fit dist features (for )
+#     for featureDistribution in listfeatures_distributions:
+#         # calc fit dist features case when dist predefined
+#         if (featureDistribution[1] == "exponential"):
+#             explambda = mean(FileZone[featureDistribution[0]])
+#             # generate sample
+#             sample = exponential(explambda, sizeMonteCarloSim)
+#             listfeatures_samples[featureDistribution[0] +
+#                                  '_zone_{}'.format(zoneindex)] = sample
+#             featureDistribution = np.append(featureDistribution, sample)
+#         elif(featureDistribution[1] == "normal"):
+#             meanTruncated = mean(FileZone[featureDistribution[0]])
+#             stdTruncated = np.std(FileZone[featureDistribution[0]])
+#             # generate sample
+#             sample = normal(meanTruncated, stdTruncated,
+#                             size=sizeMonteCarloSim)
+#             listfeatures_samples[featureDistribution[0] +
+#                                  '_zone_{}'.format(zoneindex)] = sample
+#     print("Zone fertig")
+#     zoneindex = zoneindex+1
+
+# Second Mainloop for zone calculatins
+# Zone 1
+listfeatures_samples_zone_1 = pd.DataFrame()
+
+for featureDistribution in listfeatures_distributions_zone1:
         # calc fit dist features case when dist predefined
         if (featureDistribution[1] == "exponential"):
-            explambda = mean(FileZone[featureDistribution[0]])
+            explambda = mean(dataFile1[featureDistribution[0]])
             # generate sample
             sample = exponential(explambda, sizeMonteCarloSim)
-            listfeatures_samples[featureDistribution[0] +
+            listfeatures_samples_zone_1[featureDistribution[0] +
                                  '_zone_{}'.format(zoneindex)] = sample
-            featureDistribution = np.append(featureDistribution, sample)
+            featureDistribution_zone1 = np.append(featureDistribution, sample)
         elif(featureDistribution[1] == "normal"):
-            meanTruncated = mean(FileZone[featureDistribution[0]])
-            stdTruncated = np.std(FileZone[featureDistribution[0]])
+            meanTruncated = mean(dataFile1[featureDistribution[0]])
+            stdTruncated = np.std(dataFile1[featureDistribution[0]])
             # generate sample
             sample = normal(meanTruncated, stdTruncated,
                             size=sizeMonteCarloSim)
-            listfeatures_samples[featureDistribution[0] +
+            listfeatures_samples_zone_1[featureDistribution[0] +
                                  '_zone_{}'.format(zoneindex)] = sample
-    print("Zone fertig")
-    zoneindex = zoneindex+1
+zoneindex = zoneindex+1
 
+# Zone 2
+zoneindex = 1
 
 print(listfeatures_samples)
 print(listfeatures_samples.min())

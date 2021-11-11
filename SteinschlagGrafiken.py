@@ -101,6 +101,12 @@ PassDataframe()
 
 ### Plots start here
 
+# dataFile1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
+# dataFile1["TimebeforeStone"].plot.hist(bins = 40)
+dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
+dataFile2["TimebeforeStone"].plot.hist(bins = 40)
+
+
 # dfTimeSerie.boxplot(column = "mass", by = "zone")
 # dfTimeSerie.boxplot(column = "velocity", by = "zone")
 # dfTimeSerie.boxplot(column = "energy", by = "zone")
