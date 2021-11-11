@@ -71,7 +71,7 @@ listfeatures_distributions_zone1 = [["mass", "exponential"], [
 sizeMonteCarloSim = 1_0
 
 listfeatures_samples = pd.DataFrame()
-zoneindex = 1
+zoneindex = 0
 
 # Mainloop for zone calculations
 # for FileZone in FileZones:
@@ -99,28 +99,29 @@ zoneindex = 1
 # Second Mainloop for zone calculatins
 # Zone 1
 listfeatures_samples_zone_1 = pd.DataFrame()
+zoneindex = 0
 
 for featureDistribution in listfeatures_distributions_zone1:
-        # calc fit dist features case when dist predefined
-        if (featureDistribution[1] == "exponential"):
-            explambda = mean(dataFile1[featureDistribution[0]])
-            # generate sample
-            sample = exponential(explambda, sizeMonteCarloSim)
-            listfeatures_samples_zone_1[featureDistribution[0] +
-                                 '_zone_{}'.format(zoneindex)] = sample
-            featureDistribution_zone1 = np.append(featureDistribution, sample)
-        elif(featureDistribution[1] == "normal"):
-            meanTruncated = mean(dataFile1[featureDistribution[0]])
-            stdTruncated = np.std(dataFile1[featureDistribution[0]])
-            # generate sample
-            sample = normal(meanTruncated, stdTruncated,
-                            size=sizeMonteCarloSim)
-            listfeatures_samples_zone_1[featureDistribution[0] +
-                                 '_zone_{}'.format(zoneindex)] = sample
-zoneindex = zoneindex+1
+    zoneindex = zoneindex+1
+    # calc fit dist features case when dist predefined
+    if (featureDistribution[1] == "exponential"):
+        explambda = mean(dataFile1[featureDistribution[0]])
+        # generate sample
+        sample = exponential(explambda, sizeMonteCarloSim)
+        listfeatures_samples_zone_1[featureDistribution[0] +
+                             '_zone_{}'.format(zoneindex)] = sample
+        featureDistribution_zone1 = np.append(featureDistribution, sample)
+    elif(featureDistribution[1] == "normal"):
+        meanTruncated = mean(dataFile1[featureDistribution[0]])
+        stdTruncated = np.std(dataFile1[featureDistribution[0]])
+        # generate sample
+        sample = normal(meanTruncated, stdTruncated,
+                        size=sizeMonteCarloSim)
+        listfeatures_samples_zone_1[featureDistribution[0] +
+                             '_zone_{}'.format(zoneindex)] = sample
 
 # Zone 2
-zoneindex = 1
+zoneindex = 0
 
 print(listfeatures_samples)
 print(listfeatures_samples.min())
