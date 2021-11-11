@@ -68,7 +68,13 @@ listfeatures_distributions_zone1 = [["mass", "exponential"], [
 #     "velocity", "normal"], ["TimebeforeStone", "exponential"]]
 
 # Anzahl Durchgänge in der Monte Carlo Simulation
+<<<<<<< Updated upstream
 sizeMonteCarloSim = 1_0
+=======
+#sizeMonteCarloSim = 1_000_000
+
+sizeMonteCarloSim = 1_000_000
+>>>>>>> Stashed changes
 
 listfeatures_samples = pd.DataFrame()
 zoneindex = 0
