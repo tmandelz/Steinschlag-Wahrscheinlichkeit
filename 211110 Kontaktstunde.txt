@@ -1,0 +1,2 @@
+pro stein zone 1 und zone 2 und rolling 24 h - mit anderen steinen vergleichen >= spalte mit rollingmass und true false spalte für "netzbruch"
+Können beide Zonen auch separat beachtet werden und Wahrscheinlichkeit am Schluss kombinieren?
