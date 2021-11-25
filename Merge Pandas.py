@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Oct 28 09:26:32 2021
+Created on Wed Nov 10 18:08:49 2021
 
 @author: schue
 """
 
-import SteinschlagGrafiken
-from scipy import stats
-from numpy.random.mtrand import exponential
-from numpy.random import normal
-from statistics import mean
-import pandas as pd
-import numpy as np
+
 from datetime import datetime
 start_time = datetime.now()
+
+import numpy as np
+import pandas as pd
+from statistics import mean
+from numpy.random import normal
+from numpy.random.mtrand import exponential
+from scipy import stats
+import SteinschlagGrafiken
 
 
 def FindmostfittingDistribution(MatrixColumn):
@@ -54,7 +56,7 @@ listfeatures_distributions_zone2 = [["mass", "exponential"], [
 
 # Anzahl Durchgänge in der Monte Carlo Simulation
 
-sizeMonteCarloSim = 15_000_000
+sizeMonteCarloSim = 10_000
 
 listfeatures_samples = pd.DataFrame()
 
@@ -78,7 +80,7 @@ for featureDistribution in listfeatures_distributions_zone1:
         # generate sample
         sample = normal(meanTruncated, stdTruncated,
                         size=sizeMonteCarloSim)
-        listfeatures_samples_zone_1[featureDistribution[0]] = sample
+        listfeatures_samples_zone_1[featureDistribution[0]]= sample
 
 # Zone 2
 listfeatures_samples_zone_2 = pd.DataFrame()
@@ -91,9 +93,8 @@ for featureDistribution in listfeatures_distributions_zone2:
         explambda = mean(dataFile1[featureDistribution[0]])
         # generate sample
         sample = exponential(explambda, sizeMonteCarloSim)
-        listfeatures_samples_zone_2[featureDistribution[0]] = sample
-        listfeatures_distributions_zone2 = np.append(
-            featureDistribution, sample)
+        listfeatures_samples_zone_2[featureDistribution[0]]= sample
+        listfeatures_distributions_zone2 = np.append(featureDistribution, sample)
     elif(featureDistribution[1] == "normal"):
         meanTruncated = mean(dataFile1[featureDistribution[0]])
         stdTruncated = np.std(dataFile1[featureDistribution[0]])
@@ -128,74 +129,24 @@ Timer_after_Calc_Energy_directbreakthrough = datetime.now()
 # Berechnung Masse im Netz
 
 listfeatures_samples_zone_1["CumsumHoursbeforeStone"] = listfeatures_samples_zone_1["TimebeforeStone"].cumsum()
-Timer_after_Cumsum1 = datetime.now()
 listfeatures_samples_zone_2["CumsumHoursbeforeStone"] = listfeatures_samples_zone_2["TimebeforeStone"].cumsum()
+
+Timer_after_Cumsum1 = datetime.now()
+
+
 Timer_after_Cumsum2 = datetime.now()
 
 
-listfeatures_samples = listfeatures_samples_zone_1.append(listfeatures_samples_zone_2, ignore_index=True)
+
+
+
+
+#listfeatures_samples_zone_1.set_index('CumsumHoursbeforeStone', inplace=True)
+#listfeatures_samples_zone_2.set_index('CumsumHoursbeforeStone', inplace=True)
+
+listfeatures_samples = listfeatures_samples_zone_1.append(listfeatures_samples_zone_2,ignore_index=True)
+
+#listfeatures_samples = listfeatures_samples_zone_1.merge(listfeatures_samples_zone_2,how="outer")
+
 Timer_after_Merge = datetime.now()
 
-
-listfeatures_samples = listfeatures_samples.sort_values(by='CumsumHoursbeforeStone')
-listfeatures_samples = listfeatures_samples.reset_index(drop=True)
-Timer_after_Merge_clean = datetime.now()
-
-
-listfeatures_samples["Year"] = listfeatures_samples['CumsumHoursbeforeStone'].floordiv(8760)
-Timer_after_Calc_Year = datetime.now()
-
-
-# Berechnet, wieviel Masse pro Tag im Netz ist, aber nicht, ob es wegen dem letzten gerissen ist...
-listfeatures_samples["Tag"] = listfeatures_samples['CumsumHoursbeforeStone'] // 24
-Netzvoll = listfeatures_samples.groupby("Tag")["mass"].agg("sum")
-Netzvoll = pd.DataFrame({'Tag': Netzvoll.index, 'Tagesmasse': Netzvoll.values})
-listfeatures_samples = listfeatures_samples.merge(
-    Netzvoll, how="left", on="Tag")
-listfeatures_samples["PossibleBreachFullNet"] = np.where(
-    (listfeatures_samples["energy"] >= 500) & (listfeatures_samples["Tagesmasse"] >= 2000), 1, 0)
-
-
-CountBreachFullNet = 0
-ListPossibleBrechFullNet = listfeatures_samples[listfeatures_samples["PossibleBreachFullNet"] == 1]
-ListPossibleBrechFullNet = ListPossibleBrechFullNet.reset_index()
-for i in range(len(ListPossibleBrechFullNet)):
-    Day = ListPossibleBrechFullNet.loc[i, "Tag"]
-    ToCheck = listfeatures_samples[listfeatures_samples["Tag"] == Day]
-    ToCheck = ToCheck.reset_index()
-    ToCheck["CumsumMass"] = ToCheck["mass"].shift().cumsum()
-    # print(ToCheck[["energy", "CumsumMass"]])
-    for i in range(len(ToCheck)):
-        if ToCheck.loc[i, "direct_breakthrough"] == 1:
-            break  # break weil wenn das Netz durchbrochen ist, die Strasse gesperrt wird
-        else:
-            if (ToCheck.loc[i, "energy"] >= 500) & (ToCheck.loc[i, "CumsumMass"] >= 2000):
-                CountBreachFullNet += 1
-                break
-    # print(Day)
-
-
-print("Number of years:", listfeatures_samples["Year"].max())
-print("Number of BreachFullNet:", CountBreachFullNet)
-print("Number of direct breakthrough:",
-      listfeatures_samples["direct_breakthrough"].sum())
-
-
-end_time = datetime.now()
-print('Duration: {}'.format(end_time - start_time))
-print("Time Import", Time_Import - start_time)
-print("Time Monte Carlo", Timer_after_MonteCarlo - Time_Import)
-print("Time Calc Energy direct break",
-      Timer_after_Calc_Energy_directbreakthrough - Timer_after_MonteCarlo)
-print("Time Cumsum1", Timer_after_Cumsum1 -
-      Timer_after_Calc_Energy_directbreakthrough)
-print("Time Cumsum2", Timer_after_Cumsum2 - Timer_after_Cumsum1)
-print("Time Merge", Timer_after_Merge - Timer_after_Cumsum2)
-print("Time Merge cleaned", Timer_after_Merge_clean - Timer_after_Merge)
-print("Time Calc Year", Timer_after_Calc_Year - Timer_after_Merge_clean)
-print("Time Calc Poss full Net", end_time - Timer_after_Calc_Year)
-
-
-# # To Do: Berechnung der Steine die pro Jahr das Netz durchschlagen haben (für direct und Fullnet),
-# #         Wirkliche Anzahl benötigte Jahre (10k oder 1mio)
-# #       Verknüpfung der Wahrscheinlichkeit, dass eine Auto getroffen wird und der Wahrscheinlichkeit, dass es dann zu einem Todesfall kommt.
