@@ -26,35 +26,35 @@ def Test(simsize):
     # Pandas Warnungen ausblenden für Ketten Aufrufe
     pd.options.mode.chained_assignment = None  # default='warn'
     
- # Funktion welche eine Verteilungart fitten kann
-def FindmostfittingDistribution(ColumnName,MatrixColumn):
-
-    # Unterdrückt Division durch 0 Warnungen
-    with np.errstate(divide='ignore',invalid='ignore'):
-        # Liste von Verteilungen welche gefittet werden können
-        list_of_dists = ['cauchy','expon', 'logistic', 'norm','uniform','gamma']
+     # Funktion welche eine Verteilungart fitten kann
+    def FindmostfittingDistribution(ColumnName,MatrixColumn):
     
-        results = []
-        # Kolmogorov-Smirnov Test für jede Verteilung um den Typ zu finden
-        for i in list_of_dists:
-            dist = getattr(stats, i)
-            param = dist.fit(MatrixColumn)
-            a = stats.kstest(MatrixColumn, i, args=param)
-            results.append((i, a[0], a[1]))
-
-        # sortieren der Resultate nach Höchstem PWert
-        results.sort(key=lambda x: float(x[2]), reverse=True)
-        # Plotten von Verteilung
-        MatrixColumn.hist()
-        plt.title(f"Histogram der Spalte: {ColumnName}")
-        plt.xlabel(f"{ColumnName}")
-        plt.ylabel("Dichte")
-        plt.show()
+        # Unterdrückt Division durch 0 Warnungen
+        with np.errstate(divide='ignore',invalid='ignore'):
+            # Liste von Verteilungen welche gefittet werden können
+            list_of_dists = ['cauchy','expon', 'logistic', 'norm','uniform','gamma']
         
-        # Ausgabe der Resultate
-        print(f"Die folgenden Verteilungen der Spalte {ColumnName} wurden geprüft und fitten am besten in absteigender Reihenfolge:")
-        for j in results:
-            print("{}: pvalue={}".format(j[0], j[1], j[2]))
+            results = []
+            # Kolmogorov-Smirnov Test für jede Verteilung um den Typ zu finden
+            for i in list_of_dists:
+                dist = getattr(stats, i)
+                param = dist.fit(MatrixColumn)
+                a = stats.kstest(MatrixColumn, i, args=param)
+                results.append((i, a[0], a[1]))
+    
+            # sortieren der Resultate nach Höchstem PWert
+            results.sort(key=lambda x: float(x[2]), reverse=True)
+            # Plotten von Verteilung
+            MatrixColumn.hist()
+            plt.title(f"Histogram der Spalte: {ColumnName}")
+            plt.xlabel(f"{ColumnName}")
+            plt.ylabel("Dichte")
+            plt.show()
+            
+            # Ausgabe der Resultate
+            print(f"Die folgenden Verteilungen der Spalte {ColumnName} wurden geprüft und fitten am besten in absteigender Reihenfolge:")
+            for j in results:
+                print("{}: pvalue={}".format(j[0], j[1], j[2]))
         
         
 
@@ -350,4 +350,4 @@ def Check(iterations, simsize):
         resultat.append(Test(simsize))
     print(resultat)
 
-# Check(5, 100000)
+# Check(5, 1_000_000)
