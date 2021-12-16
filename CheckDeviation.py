@@ -26,76 +26,77 @@ def Test(simsize):
     # Pandas Warnungen ausblenden für Ketten Aufrufe
     pd.options.mode.chained_assignment = None  # default='warn'
     
-    # Funktion welche eine Verteilungart fitten kann
-    def FindmostfittingDistribution(ColumnName,MatrixColumn):
+ # Funktion welche eine Verteilungart fitten kann
+def FindmostfittingDistribution(ColumnName,MatrixColumn):
+
+    # Unterdrückt Division durch 0 Warnungen
+    with np.errstate(divide='ignore',invalid='ignore'):
+        # Liste von Verteilungen welche gefittet werden können
+        list_of_dists = ['cauchy','expon', 'logistic', 'norm','uniform','gamma']
     
-        # Unterdrückt Division durch 0 Warnungen
-        with np.errstate(divide='ignore',invalid='ignore'):
-            # Liste von Verteilungen welche gefittet werden können
-            list_of_dists = ['cauchy','expon', 'logistic', 'norm','uniform','gamma']
+        results = []
+        # Kolmogorov-Smirnov Test für jede Verteilung um den Typ zu finden
+        for i in list_of_dists:
+            dist = getattr(stats, i)
+            param = dist.fit(MatrixColumn)
+            a = stats.kstest(MatrixColumn, i, args=param)
+            results.append((i, a[0], a[1]))
+
+        # sortieren der Resultate nach Höchstem PWert
+        results.sort(key=lambda x: float(x[2]), reverse=True)
+        # Plotten von Verteilung
+        MatrixColumn.hist()
+        plt.title(f"Histogram der Spalte: {ColumnName}")
+        plt.xlabel(f"{ColumnName}")
+        plt.ylabel("Dichte")
+        plt.show()
         
-            results = []
-            # Kolmogorov-Smirnov Test für jede Verteilung um den Typ zu finden
-            for i in list_of_dists:
-                dist = getattr(stats, i)
-                param = dist.fit(MatrixColumn)
-                a = stats.kstest(MatrixColumn, i, args=param)
-                results.append((i, a[0], a[1]))
-    
-            # sortieren der Resultate nach Höchstem PWert
-            results.sort(key=lambda x: float(x[2]), reverse=True)
-            # Plotten von Verteilung
-            MatrixColumn.hist()
-            plt.title(f"Histogram der Spalte: {ColumnName}")
-            plt.xlabel(f"{ColumnName}")
-            plt.ylabel("Dichte")
-            plt.show()
-            
-            # Ausgabe der Resultate
-            print(f"Die folgenden Verteilungen der Spalte {ColumnName} wurden geprüft und fitten am besten in absteigender Reihenfolge:")
-            for j in results:
-                print("{}: pvalue={}".format(j[0], j[1], j[2]))
-            
-            
-    
+        # Ausgabe der Resultate
+        print(f"Die folgenden Verteilungen der Spalte {ColumnName} wurden geprüft und fitten am besten in absteigender Reihenfolge:")
+        for j in results:
+            print("{}: pvalue={}".format(j[0], j[1], j[2]))
+        
+        
+
     # Funktion um die CSV's zu lesen
     def ReadDataframe():
         # Lesen der ersten CSV Datei
         dataFile1 = pd.read_csv("out_1.csv")
         # Lesen der zweiten CSV Datei
         dataFile2 = pd.read_csv("out_2.csv")
-    
+
         # Zonen werden als Spalte ergänzt
         dataFile1['zone']='1'
         dataFile2['zone']='2'
-    
+
         # Zusammenführen der beiden Zonen Datenframes
         mergedDataFile = dataFile1.append(dataFile2)
         return mergedDataFile
-    
+        
     # Funktion zur Berechnung eines Zeitunterschieds und Ergänzung der jeder Stunde im Datenframe als Row
-    def CalculateTimeDeltaHours(zone):
-        # Auswahl der Zone
-        mergedDataFileZone = mergedDataFile.loc[mergedDataFile['zone'] == zone]
-        # Zeitunterschiede von einem Stein zum nächsten Berechnen 
-        TimebeforeStone = mergedDataFileZone["DateTime"].diff()
+    def CalculateTimeDeltaHours(mergedDataFile):
         # Stunde dazwischen als Rows ergänzen
-        mergedDataFileZone["TimebeforeStone"] = TimebeforeStone.astype('timedelta64[h]').fillna(0)
-        return mergedDataFileZone
-    
-    
+        TimebeforeStoneZone1 = mergedDataFile.loc[mergedDataFile["zone"] == "1","DateTime"].diff()
+        TimebeforeStoneZone2 = mergedDataFile.loc[mergedDataFile["zone"] == "2","DateTime"].diff()
+        
+        # Zeitdelta ergänzen
+        mergedDataFile.loc[mergedDataFile["zone"] == "1","TimebeforeStone"] = TimebeforeStoneZone1.astype('timedelta64[h]').fillna(0)     
+        mergedDataFile.loc[mergedDataFile["zone"] == "2","TimebeforeStone"] = TimebeforeStoneZone2.astype('timedelta64[h]').fillna(0)     
+        return mergedDataFile
+
+
     # Bereinigungen und Berechnungen der Datenframes
     def CalculateandUpdateColumns(mergedDataFile):
         
         #Energie mittels der Formel (KE=1/2mv^2)/1000 in m = kg und v = m/s -> Kj
         mergedDataFile['energy']=((mergedDataFile['mass']/2)*(mergedDataFile['velocity']**2) / 1000)
-    
+
         # Auslöser Spalte ergänzen wenn ein Stein gefallen ist
         mergedDataFile["Trigger"] = np.where(mergedDataFile["zone"] == 0, 0, 1) 
-    
+
         # Umformatierung zum Datums Datentyp
         mergedDataFile["DateTime"] = pd.to_datetime(mergedDataFile['date'] + ' ' + mergedDataFile['timestamp'])
-    
+
         # Nach Datum ordnen
         mergedDataFile = mergedDataFile.sort_values(by=['DateTime'])
         mergedDataFile = mergedDataFile.reset_index(drop=True)
@@ -103,17 +104,11 @@ def Test(simsize):
         mergedDataFile.loc[1, 'timestamp'] = "10:00"
         mergedDataFile.loc[44, 'timestamp'] = "13:00"
         mergedDataFile.loc[89, 'timestamp'] = "13:00"
-    
+
         # Update der Datumsspalte
         mergedDataFile["DateTime"] = pd.to_datetime(mergedDataFile['date'] + ' ' + mergedDataFile['timestamp'])
-    
-        # Zeitunterschiede von einem Stein zum nächsten Berechnen und Stunden dazwischen als Rows ergänzen
-        mergedDataFileTemp = pd.DataFrame()
-        for zone in range(1,3):
-            mergedDataFileZone = CalculateTimeDeltaHours(str(zone))
-            mergedDataFileTemp = mergedDataFileTemp.append(mergedDataFileZone)
-        return mergedDataFileTemp
-    
+        return mergedDataFile
+
     # Funktion zur Erstellung der Timeserie für die Plots
     def TimeSeriePlots(mergedDataFile):
             # Leere Stunden ergänzen
@@ -121,7 +116,7 @@ def Test(simsize):
             dfTimeSerie = dfTimeSerie.set_index(mergedDataFile["DateTime"])
             dfTimeSerie = dfTimeSerie.resample('H').first().fillna(0)
             dfTimeSerie['DateTime'] = dfTimeSerie.index
-    
+
             # Fehlende Tage und Stunden ergänzen
             dfTimeSerie["date"] = dfTimeSerie["DateTime"].dt.date
             dfTimeSerie["timestamp"] = dfTimeSerie["DateTime"].dt.time
@@ -129,13 +124,12 @@ def Test(simsize):
             # berechnen der rollierenden Energie sowie masse über 24 Stunden
             dfTimeSerie["rollingEnergy24h"] = dfTimeSerie["energy"].rolling(24, min_periods=1).sum()
             dfTimeSerie["rollingmass24h"] = dfTimeSerie["mass"].rolling(24, min_periods=1).sum()
-    
-    
+
+
             # Berechnung ob Durchbrüche beobachtet wurden mittels Durchbruchkriterien
             dfTimeSerie["BreachEnergy"] = np.where(dfTimeSerie["energy"] >= 1000, 1, 0)
             dfTimeSerie["BreachFullNet"] = np.where((dfTimeSerie["energy"] >= 500) & (dfTimeSerie["rollingmass24h"] >= 2000), 1, 0)
             return dfTimeSerie   
-        
         
         
     # Initieren von Datenframe
@@ -144,9 +138,11 @@ def Test(simsize):
     mergedDataFile = ReadDataframe()
     # Bereinigungen und Berechnungen der Datenframes ausführen
     mergedDataFile = CalculateandUpdateColumns(mergedDataFile)
+    # Berechnen der Zeitunterschiede
+    mergedDataFile = CalculateTimeDeltaHours(mergedDataFile)
     # Bereinigungen und Berechnungen der Datenframes für Plots ausführen
     dfTimeSerie = TimeSeriePlots(mergedDataFile)
-    
+
     # Splitten in Zone 1 und Zone 2
     dataFile1 = mergedDataFile.loc[mergedDataFile['zone'] == "1"]
     dataFile2 = mergedDataFile.loc[mergedDataFile['zone'] == "2"]
