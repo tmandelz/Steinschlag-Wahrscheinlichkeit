@@ -304,19 +304,22 @@ def Test(simsize):
     ProbabilityCar = 1200/24
     # print('{0:.10f}'.format(ProbabilityCar))
     
+    # Geschwindigkeit eines Autos in m/s
+    VelocityCarMs = 60 / 3.6
+    # Geschwindigkeit eines Autos in m/s
+    VelocityCar = 60
     # Bremsweg definieren (Vollbremse = Bremsweg/2)
-    BrakeWay = 36 / 2
+    BrakeWay = (VelocityCar / 10) * (VelocityCar / 10) / 2
     # Autolänge definieren
     AutoLength = 4.4
-    
+
     # Gefahrenzone für ein Auto welches durchfährt
     DangerZone = BrakeWay + AutoLength
-    # Geschwindigkeit eines Autos in m/s
-    VelocityCar = 60 / 3.6
-    
+
+
     # Wahrscheinlichkeit für ein Auto in der Gefahrenzone zu sein pro Tag
-    ProbabilityCarImpact = (DangerZone / VelocityCar) / (60*60)
-    # print('{0:.10f}'.format(ProbabilityCarImpact))
+    ProbabilityCarImpact = (DangerZone / VelocityCarMs) / (60*60)
+    print('{0:.10f}'.format(ProbabilityCarImpact))
     
     # Wahrscheinlichkeit das ein Verunfallter stirbt
     ProbabilityDeath = float(4/14)
