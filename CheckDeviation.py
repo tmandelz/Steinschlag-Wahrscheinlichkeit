@@ -307,7 +307,7 @@ def Test(simsize):
     # Bremsweg definieren (Vollbremse = Bremsweg/2)
     BrakeWay = 36 / 2
     # Autolänge definieren
-    AutoLength = 4.5
+    AutoLength = 4.4
     
     # Gefahrenzone für ein Auto welches durchfährt
     DangerZone = BrakeWay + AutoLength
