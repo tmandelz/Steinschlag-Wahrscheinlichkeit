@@ -319,7 +319,7 @@ def Test(simsize):
 
     # Wahrscheinlichkeit für ein Auto in der Gefahrenzone zu sein pro Tag
     ProbabilityCarImpact = (DangerZone / VelocityCarMs) / (60*60)
-    print('{0:.10f}'.format(ProbabilityCarImpact))
+    # print('{0:.10f}'.format(ProbabilityCarImpact))
     
     # Wahrscheinlichkeit das ein Verunfallter stirbt
     ProbabilityDeath = float(4/14)
