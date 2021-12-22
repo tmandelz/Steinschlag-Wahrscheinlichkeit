@@ -312,9 +312,12 @@ def Test(simsize):
     BrakeWay = (VelocityCar / 10) * (VelocityCar / 10) / 2
     # Autolänge definieren
     AutoLength = 4.4
+    # Reaktionsweg definieren (Reaktionsweg = Geschwindigkeit/10 * 3)    
+    ReactionWay = (VelocityCar / 10) * 3
+    
 
     # Gefahrenzone für ein Auto welches durchfährt
-    DangerZone = BrakeWay + AutoLength
+    DangerZone = BrakeWay + AutoLength + ReactionWay
 
 
     # Wahrscheinlichkeit für ein Auto in der Gefahrenzone zu sein pro Tag
